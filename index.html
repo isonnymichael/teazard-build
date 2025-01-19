@@ -30,7 +30,95 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script>
-        (function(){const e=["AIzaSyBLOWTFmffWTD1HxI8N4EP_cYB23VqrS9A","idle-game-e3f8c.firebaseapp.com","idle-game-e3f8c","idle-game","https://idle-game-e3f8c-default-rtdb.asia-southeast1.firebasedatabase.app/","value","once","exists","ref","set","new Date","slice","toString","addEventListener","beforeunload","ethereum.on","accountsChanged"],t={apiKey:e[0],authDomain:e[1],projectId:e[2],databaseURL:e[4]};firebase.initializeApp(t);var n="";function a(t){firebase.database()[e[8]](`${e[3]}/${t}`)[e[6]](e[5]).then(function(e){e[e[7]]()||o(t)})}function o(t){return firebase.database()[e[8]](`${e[3]}/${t}`)[e[9]](JSON.parse(r())),JSON.parse(r())}function r(){return`{\"level\":1,\"money\":0,\"quitTime\":\"${c()}\"}`}function c(){let e=new Date,t=("0"+(e.getMonth()+1))[e[11]](-2),n=("0"+e.getDate())[e[11]](-2),a=e.getFullYear(),o=("0"+e.getHours())[e[11]](-2),r=("0"+e.getMinutes())[e[11]](-2),c=("0"+e.getSeconds())[e[11]](-2);return`${t}/${n}/${a} ${o}:${r}:${c}`}window[e[13]](e[14],function(){a(n),firebase.database()[e[8]](`${e[3]}/${n}/quitTime`)[e[9]](c())}),window[e[15]](e[16],function(){location.reload()})})();
+        const firebaseConfig = {
+            apiKey: "AIzaSyBLOWTFmffWTD1HxI8N4EP_cYB23VqrS9A",
+            authDomain: "idle-game-e3f8c.firebaseapp.com",
+            projectId: "idle-game-e3f8c",
+            storageBucket: "idle-game-e3f8c.appspot.com",
+            messagingSenderId: "88961102272",
+            appId: "1:88961102272:web:0ecc7e2c6998d048f45825",
+            measurementId: "G-CG1MF03FRV",
+            databaseURL: "https://idle-game-e3f8c-default-rtdb.asia-southeast1.firebasedatabase.app/"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        var _wall = '';
+        
+        function checkAndRegisterWall(_wall) {
+            firebase.database().ref(`idle-game/${_wall}`).once('value').then(function(snapshot) {
+                if (!snapshot.exists()) {
+                    register(_wall);
+                } else {
+                    console.log(`Wall ${_wall} sudah terdaftar.`);
+                }
+            });
+        }
+
+        function register(address){
+
+            firebase.database().ref(`idle-game/${address}`).set(JSON.parse(newPlayer())).then(function(unused) {
+              
+            });
+            console.log('AFTER');
+            return JSON.parse(newPlayer());
+        }
+
+        function getLeaderboard(limit)
+        {
+          firebase.database().ref('idle-game').orderByChild('-level').limitToFirst(limit).once('value', function(snapshot) {
+                var _leaderboard = [];
+                snapshot.forEach(function(childSnapshot) {
+                    _leaderboard.push(childSnapshot.val());
+                });
+                console.log(JSON.stringify(_leaderboard));
+            });
+        }
+
+        function getCurrentLocalTZ()
+        {
+            // Get current date and time
+            let now = new Date();
+
+            // Extract date components
+            let month = ('0' + (now.getMonth() + 1)).slice(-2); // pad with leading zero if needed
+            let day = ('0' + now.getDate()).slice(-2); // pad with leading zero if needed
+            let year = now.getFullYear();
+
+            // Extract time components
+            let hours = ('0' + now.getHours()).slice(-2); // pad with leading zero if needed
+            let minutes = ('0' + now.getMinutes()).slice(-2); // pad with leading zero if needed
+            let seconds = ('0' + now.getSeconds()).slice(-2); // pad with leading zero if needed
+
+            // Format the date and time as a string
+            let dateTimeString = `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
+            
+            return dateTimeString;
+        }
+
+        function newPlayer(){
+            var _newPlayer = "{\"level\":1,\"money\":0,\"tempMoney\":0,\"activatedSkillID\":0,\"quitTime\":\""+getCurrentLocalTZ()+"\",\"skills\":[{\"ID\":0,\"damageLevel\":0,\"speedLevel\":0,\"unlocked\":true},{\"ID\":1,\"damageLevel\":0,\"speedLevel\":0,\"unlocked\":false},{\"ID\":2,\"damageLevel\":0,\"speedLevel\":0,\"unlocked\":false},{\"ID\":3,\"damageLevel\":0,\"speedLevel\":0,\"unlocked\":false},{\"ID\":4,\"damageLevel\":0,\"speedLevel\":0,\"unlocked\":false},{\"ID\":5,\"damageLevel\":0,\"speedLevel\":0,\"unlocked\":false},{\"ID\":6,\"damageLevel\":0,\"speedLevel\":0,\"unlocked\":false},{\"ID\":7,\"damageLevel\":0,\"speedLevel\":0,\"unlocked\":false}]}"
+            return _newPlayer;
+        }
+
+        window.addEventListener('beforeunload', function (e) {
+            // Cancel the event
+            e.preventDefault();
+            e.returnValue = '';
+            
+            checkAndRegisterWall(_wall);
+            
+            firebase.database().ref(`idle-game/${_wall}/quitTime`).set(getCurrentLocalTZ()).then(function(unused) {
+
+            });
+        });
+
+        window.ethereum.on('accountsChanged', function (accounts) {
+          alert("Changed account");
+
+          location.reload();
+        })
+
     </script>
     
     <script>
