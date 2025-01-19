@@ -107,7 +107,7 @@
             
             await checkAndRegisterWall(_wall); // Ensure checkAndRegisterWall finishes before proceeding
 
-            if (_wall === '') {
+            if (_wall == null || _wall == '') {  
                 return;
             }
 
