@@ -45,14 +45,13 @@
         firebase.initializeApp(firebaseConfig);
         var _wall = '';
         
-        function checkAndRegisterWall(_wall) {
-            firebase.database().ref(`idle-game/${_wall}`).once('value').then(function(snapshot) {
-                if (!snapshot.exists()) {
-                    register(_wall);
-                } else {
-                    console.log(`Wall ${_wall} sudah terdaftar.`);
-                }
-            });
+        async function checkAndRegisterWall(_wall) {
+            const snapshot = await firebase.database().ref(`idle-game/${_wall}`).once('value');
+            if (!snapshot.exists()) {
+                await register(_wall); // Assuming register is an async function
+            } else {
+                console.log(`Wall ${_wall} sudah terdaftar.`);
+            }
         }
 
         function register(address){
@@ -101,20 +100,18 @@
             return _newPlayer;
         }
 
-        window.addEventListener('beforeunload', function (e) {
+        window.addEventListener('beforeunload', async function (e) {
             // Cancel the event
             e.preventDefault();
             e.returnValue = '';
             
-            checkAndRegisterWall(_wall);
-            
-            if(_wall == ''){
-              return;
+            await checkAndRegisterWall(_wall); // Ensure checkAndRegisterWall finishes before proceeding
+
+            if (_wall === '') {
+                return;
             }
 
-            firebase.database().ref(`idle-game/${_wall}/quitTime`).set(getCurrentLocalTZ()).then(function(unused) {
-
-            });
+            await firebase.database().ref(`idle-game/${_wall}/quitTime`).set(getCurrentLocalTZ());
         });
 
         window.ethereum.on('accountsChanged', function (accounts) {
