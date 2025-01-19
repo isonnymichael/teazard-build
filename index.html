@@ -108,6 +108,10 @@
             
             checkAndRegisterWall(_wall);
             
+            if(_wall == ''){
+              return;
+            }
+
             firebase.database().ref(`idle-game/${_wall}/quitTime`).set(getCurrentLocalTZ()).then(function(unused) {
 
             });
